@@ -79,14 +79,14 @@ function minimalNav(back) {
 }
 function minimalDetail() {
   const a=account();
-  return `<div class="scroll"><h1 tabindex="-1">${a.name}</h1><p class="secondary">Накопительный счёт ·· ${a.tail}</p><p class="minimal-amount">${money(a.amount)}</p><p class="secondary">9% годовых</p></div><div class="footer">${button('Перейти на 12%','start')}</div>`;
+  return `<div class="scroll"><h1 tabindex="-1">${a.name}</h1><p class="secondary">Накопительный счёт ·· ${a.tail}</p><div class="card minimal-data"><p class="minimal-amount">${money(a.amount)}</p><p class="secondary">9% годовых</p></div></div><div class="footer">${button('Перейти на 12%','start')}</div>`;
 }
 function minimalConversationView() {
   const a=account(),d=conversationAnswers();
   let content='';
-  if(step==='flowMoney')content=`<h1 tabindex="-1">Перенесём деньги?</h1><p>На новый счёт под 12% годовых.</p><p class="minimal-amount">${money(a.amount)}</p><p class="secondary">Весь остаток с «${a.name}» ·· ${a.tail}</p><p class="fine">Если нет — откроем пустой счёт, а деньги оставим на старом под 9%.</p>`;
-  if(step==='flowClose')content=`<h1 tabindex="-1">Старый счёт закроем?</h1><p>«${a.name}» ·· ${a.tail}</p><p class="secondary">${a.amount===0?'На нём сейчас 0 ₽.':'После переноса на нём останется 0 ₽.'}</p>`;
-  if(step==='flowSettings')content=`<h1 tabindex="-1">Перенесём автопополнение?</h1><div class="minimal-data"><p>${money(a.autopay.amount)} · ${a.autopay.schedule.toLowerCase()}</p><p class="secondary">${a.autopay.source}</p></div><p class="fine">${d.close==='yes'?'Если нет — отключим при закрытии старого счёта.':'Если нет — оставим на старом счёте.'}</p>`;
+  if(step==='flowMoney')content=`<h1 tabindex="-1">Перенесём деньги?</h1><p>На новый счёт под 12% годовых.</p><div class="card minimal-data"><p class="minimal-amount">${money(a.amount)}</p><p class="secondary">Весь остаток с «${a.name}» ·· ${a.tail}</p></div><p class="fine">Если нет — откроем пустой счёт, а деньги оставим на старом под 9%.</p>`;
+  if(step==='flowClose')content=`<h1 tabindex="-1">Старый счёт закроем?</h1><div class="card minimal-data"><p>«${a.name}» ·· ${a.tail}</p><p class="secondary">${a.amount===0?'На нём сейчас 0 ₽.':'После переноса на нём останется 0 ₽.'}</p></div>`;
+  if(step==='flowSettings')content=`<h1 tabindex="-1">Перенесём автопополнение?</h1><div class="card minimal-data"><p>${money(a.autopay.amount)} · ${a.autopay.schedule.toLowerCase()}</p><p class="secondary">${a.autopay.source}</p></div><p class="fine">${d.close==='yes'?'Если нет — отключим при закрытии старого счёта.':'Если нет — оставим на старом счёте.'}</p>`;
   if(step==='flowReview')content=`<h1 tabindex="-1">Проверим?</h1>${conversationSummary(a,d)}<button class="small-link" data-action="documents">Тариф и документы</button><label class="check"><input id="consent" type="checkbox" ${consent?'checked':''}><span>Согласен с условиями открытия нового счёта и выбранными выше действиями</span></label>`;
   return `<div class="scroll">${content}</div><div class="footer">${step==='flowReview'?button('Подтвердить','submit',false,!consent||!conversationReady()):conversationChoices()}</div>`;
 }

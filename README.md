@@ -16,4 +16,4 @@
 
 Проверка логики без зависимостей: `node prototypes/account-migration/check-conversation.cjs`.
 
-Вариант G: [минимальный](https://ohnoazamat92.github.io/savings-account-migration-prototype/prototypes/account-migration/?variant=G&v=minimal-g-1). Сразу открывает первый вопрос. Без сквозного заголовка, номеров шагов, имитации статус-бара и подложек карточек; логика общая с F.
+Вариант G: [минимальный](https://ohnoazamat92.github.io/savings-account-migration-prototype/prototypes/account-migration/?variant=G&v=minimal-g-2). Сразу открывает первый вопрос. Без сквозного заголовка, номеров шагов, имитации статус-бара; данные собраны на серых подложках, логика общая с F.
