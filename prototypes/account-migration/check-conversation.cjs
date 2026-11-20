@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync(__dirname+'/index.html','utf8');
 const events={},elements={};
-function element(id){return elements[id]||={value:({balance:'normal',settings:'mixed',outcome:'success'})[id]||'',innerHTML:'',textContent:'',children:[],querySelector:()=>({focus(){},disabled:false}),addEventListener(){}};}
+function element(id){return elements[id]||={value:({balance:'normal',settings:'mixed',outcome:'success'})[id]||'',innerHTML:'',textContent:'',children:[],classList:{toggle(){}},querySelector:()=>({focus(){},disabled:false}),addEventListener(){}};}
 const context=vm.createContext({Intl,URLSearchParams,location:{search:''},setTimeout:()=>1,clearTimeout(){},document:{getElementById:element,addEventListener:(name,fn)=>events[name]=fn}});
 vm.runInContext(fs.readFileSync(__dirname+'/conversation.js','utf8')+'\n'+html.match(/<script>\s*([\s\S]*?)<\/script>/)[1],context);
 const run=code=>vm.runInContext(code,context);
@@ -19,3 +19,8 @@ start({outcome:'settings'});answer('money','yes');answer('close','yes');answer('
 start({outcome:'unknown'});answer('money','yes');answer('close','no');answer('settings','yes');confirm();assert.equal(run('step'),'unknown');assert.equal(run('done.size'),0);click('pendingAccounts');click('unknown');click('checkStatus');assert.equal(run('done.size'),1);click('accounts');click('account:reserve');click('start');assert.equal(run('conversationAnswers().money'),'');
 for(const variant of ['A','B','C','D','E']){element('outcome').value='success';run(`v='${variant}';reset()`);click('start');if(variant==='E')click('offer');click('consent');run('consent=true');click('submit');run('resolveOperation()');if(variant==='C'){assert.equal(run('step'),'opened');click('transferSubmit');run('resolveOperation()');}assert.equal(run('step'),'success');assert.equal(run('done.size'),1);}
 console.log('Проверены: F — перенос и отказ, закрытие и сохранение счёта, настройки и отказ, пустой счёт, изменение согласия, ошибка настройки, неизвестный результат, другой счёт; A–E — успешный путь.');
+
+// G использует ту же логику, но без сквозного названия и счётчика шагов.
+start();run("v='G';reset()");assert.equal(run('step'),'flowMoney');assert.doesNotMatch(element('phone').innerHTML,/class="status"|conversation-step|Переход на новый счёт/);answer('money','yes');answer('close','no');answer('settings','yes');assert.equal(run('step'),'flowReview');confirm();assert.equal(run('step'),'success');assert.match(element('phone').innerHTML,/Оставлен открытым/);
+start({balance:'zero',settings:'none'});run("v='G';reset()");assert.equal(run('step'),'flowClose');answer('close','yes');confirm();assert.match(element('phone').innerHTML,/Закрыт/);
+start();run("v='G';reset()");answer('money','no');assert.equal(run('step'),'flowSettings');answer('settings','no');confirm();assert.match(element('phone').innerHTML,/На новом ·· 6401: 0 ₽/);console.log('G: перенос, отказ, сохранение и закрытие счёта, нулевой остаток — пройдены.');
