@@ -7,12 +7,12 @@ vm.runInContext(fs.readFileSync(__dirname+'/conversation.js','utf8')+'\n'+html.m
 const run=code=>vm.runInContext(code,context);
 const click=action=>events.click({target:{closest:selector=>selector==='[data-action]'?{dataset:{action},disabled:false}:null}});
 function start({balance='normal',settings='mixed',outcome='success'}={}){element('balance').value=balance;element('settings').value=settings;element('outcome').value=outcome;run("v='F';reset()");click('start');}
-function answer(key,value){run(`conversationAnswer('${key}','${value}')`);click('flowNext');}
+function answer(key,value){click(`answer:${key}:${value}`);}
 function confirm(){run('consent=true');click('submit');run('resolveOperation()');}
-start();assert.equal(run('step'),'flowMoney');click('flowNext');assert.equal(run('step'),'flowMoney');
+start();assert.equal(run('step'),'flowMoney');assert.doesNotMatch(element('phone').innerHTML,/<select/);assert.match(element('phone').innerHTML, /class="footer">[\s\S]*answer:money:yes[\s\S]*answer:money:no/);answer('close','yes');assert.equal(run('step'),'flowMoney');
 answer('money','yes');answer('close','yes');answer('settings','yes');assert.equal(run('step'),'flowReview');click('submit');assert.equal(run('step'),'flowReview');confirm();assert.equal(run('step'),'success');assert.match(element('phone').innerHTML,/Закрыт/);assert.equal(run('done.size'),1);click('newDetail');click('start');assert.equal(run('step'),'detail');
 start();answer('money','no');assert.equal(run('step'),'flowSettings');answer('settings','no');confirm();assert.match(element('phone').innerHTML,/Оставлен открытым/);assert.match(element('phone').innerHTML,/На новом ·· 6401: 0 ₽/);assert.match(element('phone').innerHTML,/Осталось на старом/);
-start();answer('money','yes');answer('close','no');answer('settings','yes');run('consent=true');click('flowMoney');run("conversationAnswer('money','no')");assert.equal(run('consent'),false);assert.equal(run('conversationAnswers().close'),'');click('flowNext');assert.equal(run('step'),'flowSettings');
+start();answer('money','yes');answer('close','no');answer('settings','yes');run('consent=true');click('flowMoney');answer('money','no');assert.equal(run('consent'),false);assert.equal(run('conversationAnswers().close'),'');assert.equal(run('step'),'flowSettings');
 start({balance:'zero',settings:'none'});assert.equal(run('step'),'flowClose');answer('close','yes');assert.equal(run('step'),'flowReview');confirm();assert.match(element('phone').innerHTML,/Не настроено/);
 start({outcome:'settings'});answer('money','yes');answer('close','yes');answer('settings','yes');confirm();assert.match(element('phone').innerHTML,/Пока открыт/);click('retrySettings');assert.match(element('phone').innerHTML,/Закрыт/);assert.equal(run('done.size'),1);
 start({outcome:'settings'});answer('money','yes');answer('close','yes');answer('settings','no');confirm();assert.equal(run('settingsFailed.size'),0);assert.match(element('phone').innerHTML,/Отключено при закрытии/);
